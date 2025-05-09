@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>شكرًا دكتورة سماح زغلول</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap');
+    
+    body {
+      font-family: 'Amiri', serif;
+      direction: rtl;
+      overflow-x: hidden;
+      margin: 0;
+      background: linear-gradient(to bottom, #1e1b4b, #4c1d95);
+      color: #fff;
+    }
+    
+    .bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    
+    .cursor-glow {
+      position: fixed;
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.5), transparent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: screen;
+    }
+    
+    .thank-you-text span {
+      opacity: 0;
+      display: inline-block;
+      transform: translateY(30px);
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+    }
+    
+    .image-hover {
+      transition: transform 0.6s ease, filter 0.6s ease;
+      position: relative;
+    }
+    
+    .image-hover:hover {
+      transform: scale(1.15) translateY(-10px);
+      filter: brightness(1.3) drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+    }
+    
+    .image-hover::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, transparent, rgba(255, 215, 0, 0.2));
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    
+    .image-hover:hover::after {
+      opacity: 1;
+    }
+    
+    .button-glow {
+      background: linear-gradient(45deg, #f9a8d4, #f3c678);
+      border: none;
+      transition: all 0.4s ease;
+    }
+    
+    .button-glow:hover {
+      background: linear-gradient(45deg, #f3c678, #f9a8d4);
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.7);
+      transform: translateY(-4px);
+    }
+    
+    .logo-heart {
+      animation: heartbeat 1.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.5));
+    }
+    
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    
+    .parallax {
+      transform: translateZ(0);
+    }
+  
+    /* Media Query for mobile responsiveness */
+    @media (max-width: 768px) {
+      body {
+        font-size: 14px; /* تقليل حجم الخطوط للأجهزة الصغيرة */
+      }
+    
+      header, footer {
+        padding: 10px 15px; /* تقليل الحواف في الهواتف */
+      }
+    
+      .text-3xl {
+        font-size: 1.5rem; /* تقليل حجم النص */
+      }
+    
+      .image-hover {
+        transform: scale(1.1); /* تقليل تأثير التكبير للصور على الهواتف */
+      }
+    
+      .button-glow {
+        padding: 10px 20px; /* زيادة حجم الأزرار لتتناسب مع الشاشات الصغيرة */
+      }
+    
+      /* تحسين عرض الصور لتناسب جميع الأحجام */
+      img {
+        width: 100%;
+        height: auto;
+      }
+    
+      /* تحسين تنسيق النصوص في الهيدر والفوتر */
+      .thank-you-text span {
+        font-size: 1.2rem;
+      }
+    
+      /* جعل النصوص داخل الفوتر تبدو واضحة */
+      .bg-gradient-to-r {
+        padding: 10px 0;
+      }
+    
+      /* تكييف بعض العناصر الأخرى على الشاشات الصغيرة */
+      .cursor-glow {
+        width: 50px;
+        height: 50px;
+      }
+    }
+  
+    footer {
+      background: linear-gradient(to right, rgba(29, 45, 102, 0.8), rgba(76, 107, 181, 0.8)); /* تأثير الضبابية */
+      backdrop-filter: blur(10px); /* إضافة الضبابية */
+    }
+  
+    .heart {
+      position: absolute;
+      width: 50px;
+      height: 45px;
+      background: #ff6b6b;
+      transform: rotate(-45deg);
+      animation: float 6s infinite;
+      z-index: 0;
+    }
+  
+    .heart::before,
+    .heart::after {
+      content: '';
+      width: 50px;
+      height: 45px;
+      background: #ff6b6b;
+      border-radius: 50%;
+      position: absolute;
+    }
+  
+    .heart::before {
+      top: -22.5px;
+      left: 0;
+    }
+  
+    .heart::after {
+      left: 22.5px;
+      top: 0;
+    }
+  
+    @keyframes float {
+      0% { transform: rotate(-45deg) translate(0, 0); opacity: 0.8; }
+      50% { transform: rotate(-45deg) translate(15px, -15px); opacity: 0.3; }
+      100% { transform: rotate(-45deg) translate(0, 0); opacity: 0.8; }
+    }
+  
+    .section {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      position: relative;
+    }
+  
+    .gallery-item {
+      transition: transform 0.3s ease;
+    }
+  
+    .gallery-item:hover {
+      transform: scale(1.05);
+    }
+  
+    canvas#particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+  
+    @keyframes memoryBurst {
+      0% {
+        opacity: 0;
+        transform: scale(0.8) rotateX(90deg) translateY(100px);
+      }
+      50% {
+        opacity: 0.5;
+        transform: scale(1.05) rotateX(-10deg);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) rotateX(0deg) translateY(0);
+      }
+    }
+  
+    .animate-wow {
+      animation: memoryBurst 1.2s ease-out forwards;
+    }
+  
+    .animate-delay-100 { animation-delay: 0.1s; }
+    .animate-delay-200 { animation-delay: 0.2s; }
+    .animate-delay-300 { animation-delay: 0.3s; }
+  
+    @keyframes fadeUpSoft {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  
+    .animate-soft-up {
+      animation: fadeUpSoft 1.5s ease-out forwards;
+    }
+  
+    @keyframes fadeInDownBig {
+      0% {
+        opacity: 0;
+        transform: translateY(-80px) scale(0.9) rotateX(20deg);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotateX(0);
+      }
+    }
+  
+    .animate-wow-down {
+      animation: fadeInDownBig 1.4s ease-out forwards;
+    }
+  </style>
+  
+</head>
+<body>
+  <canvas id="bg-canvas" class="bg-canvas"></canvas>
+  <div class="cursor-glow" id="cursor"></div>
+
+  <!-- Header -->
+  <header class="flex justify-center items-center py-12 relative z-10">
+    <div class="text-center">
+      <svg class="logo-heart mx-auto mb-8 w-24 h-24 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+      <h1 class="text-7xl font-bold text-yellow-400" style="font-family: 'Noto Naskh Arabic', serif; text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);"> أ.م.د/سماح زغلول </h1>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-8 py-20 relative z-10">
+    <section class="text-center mb-24 parallax">
+      <h2 class="thank-you-text text-6xl font-bold text-pink-400">
+        <span>شكرا</span><span> </span>
+        <span>دكتورة</span><span> </span>
+        <span>سماح</span>
+      </h2>
+      <p class="mt-10 text-3xl text-gray-200 animate-fade-in" style="font-family: 'Amiri', serif; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">
+        عطاؤكِ نجمٌ يضيء دروبنا، وإلهامكِ ينبض في قلوبنا.
+      </p>
+    </section>
+
+    <!-- Images -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-24 parallax">
+      <div class="image-hover overflow-hidden rounded-3xl">
+        <img src="smah.jpg" alt="Inspiration" class="w-full h-auto">
+      </div>
+      <div class="image-hover overflow-hidden rounded-3xl">
+        
+      </div>
+      <div class="image-hover overflow-hidden rounded-3xl">
+        <img src="mohamed.jpg" alt="Gratitude" class="w-full h-auto">
+      </div>
+    </section>
+
+    <!-- Video -->
+    <section class="text-center mb-24 parallax">
+      <h3 class="text-5xl font-semibold text-yellow-400 mb-10" style="font-family: 'Noto Naskh Arabic', serif; text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);">رسالة شكر </h3>
+      <video controls class="mx-auto rounded-3xl shadow-2xl" style="max-width: 900px; filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));">
+        <source src="Thank_You_Dr_Samah_Zaghloul (3).mp4" type="video/mp4">
+        المتصفح لا يدعم تشغيل الفيديو.
+      </video>
+    </section>
+
+    <!-- Social Buttons -->
+    <section >
+
+    </section>
+     <!-- Particles Background -->
+     <canvas id="particles"></canvas>
+
+<!-- Section 1: Welcome -->
+<section id="welcome" class="section bg-white/60 backdrop-blur-md py-24 px-6">
+    <div class="text-center max-w-3xl mx-auto">
+        <h1 class="text-5xl font-extrabold text-pink-700 mb-6 animate-wow-down">إلى أمي الثانية: د. سماح زغلول</h1>
+        <p class="text-xl text-gray-700 leading-relaxed animate-wow-down" style="animation-delay: 0.3s; animation-fill-mode: both;">
+            شكرًا لكِ على كل ما قدمتِه من علمٍ وتوجيه، وعلى بصمتكِ التي لا تُنسى في مسيرتنا.  
+            كنتِ لنا مثالًا في الأخلاق، والجد، والرحمة… ورمزًا يُحتذى به في التعليم والقيادة.  
+            هذه الكلمة هي عربون وفاء، وتقدير صادق لمكانتكِ الرفيعة في نفوسنا.  
+            جزاكِ الله عنّا خير الجزاء، ورفع قدركِ في الدنيا والآخرة.
+        </p>
+        <button onclick="scrollToSection('story')" class="mt-8 bg-pink-600 text-white text-lg px-8 py-3 rounded-full shadow-lg hover:bg-pink-700 hover:scale-105 transition duration-300 animate-wow-down" style="animation-delay: 0.6s; animation-fill-mode: both;">
+            اقرئي 
+        </button>
+    </div>
+</section>
+
+ 
+<!-- Section 2: Story -->
+<section id="story" class="section bg-gradient-to-b from-pink-100/70 via-white/60 to-white/90 backdrop-blur-sm py-20 px-6">
+    <div class="text-center max-w-3xl mx-auto">
+        <h2 class="text-5xl font-extrabold text-pink-700 mb-8 animate-soft-up">إلى أمي الثانية ودكتورتي</h2>
+        <p class="text-xl text-gray-700 leading-loose animate-soft-up" style="animation-delay: 0.3s; animation-fill-mode: both;">
+            شكرًا لكِ من أعماق قلبي... لأنكِ لم تكوني مجرد معلمة، بل كنتِ أمًّا بنبض مختلف. <br>
+            احتويتِ قلبي قبل أن تحتوي عقلي، وكنتِ لي الحضن حين غابت الأمانات. <br>
+            كل كلمة منكِ كانت دعاءً، وكل نصيحة كانت سلمًا نحو النور. <br>
+            تعلمتُ منكِ أن العلم رسالة، وأن العطاء لا يُقاس بالشرح فقط، بل بالحب الذي يُزرع دون مقابل. <br>
+            شكرًا لأنكِ كنتِ دومًا النور حين تعثّر الدرب، والأمان حين خفت الصوت. <br>
+            ستبقين في قلبي… أمًا لم تلدني، لكنها ولدت فيَّ الحلم.
+        </p>
+    </div>
+</section>
+ 
+
+        
+<!-- Section 3: Memories Gallery -->
+<section id="memories" class="section bg-white/50 backdrop-blur-sm py-16 px-6">
+    <div class="text-center max-w-5xl mx-auto">
+        <h2 class="text-4xl font-bold text-pink-700 mb-10 animate-wow">ذكريات لا تُنسى</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <!-- Memory Item -->
+            <div class="gallery-item bg-white border border-pink-100 p-6 rounded-2xl shadow-xl hover:scale-105 transition-transform duration-300 animate-wow animate-delay-100">
+                <div class="text-5xl mb-4">🌟</div>
+                <p class="text-gray-700 text-lg leading-relaxed">كلماتكِ التي أضاءت لنا الطريق، وكانت بداية التغيير الذي طالما حلمنا به.</p>
+            </div>
+            <!-- Memory Item -->
+            <div class="gallery-item bg-white border border-pink-100 p-6 rounded-2xl shadow-xl hover:scale-105 transition-transform duration-300 animate-wow animate-delay-200">
+                <div class="text-5xl mb-4">📚</div>
+                <p class="text-gray-700 text-lg leading-relaxed">دروسكِ التي حفرت فينا حب الاستزادة من المعرفة، وعلّمتنا كيف نفكر خارج الصندوق.</p>
+            </div>
+            <!-- Memory Item -->
+            <div class="gallery-item bg-white border border-pink-100 p-6 rounded-2xl shadow-xl hover:scale-105 transition-transform duration-300 animate-wow animate-delay-300">
+                <div class="text-5xl mb-4">💖</div>
+                <p class="text-gray-700 text-lg leading-relaxed">قلبكِ الكبير الذي احتوى الجميع، كان ولا يزال الأمان الذي نحتاجه في كل وقت.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+ 
+     <!-- Section 5: Closing -->
+     <section id="closing" class="section bg-white bg-opacity-90">
+         <div class="text-center max-w-3xl mx-auto">
+             <h2 class="text-4xl font-bold text-gray-800 mb-6">كلمة ختام</h2>
+             <p class="text-lg text-gray-600 leading-relaxed">
+                  يا أمي،   
+                 كلمات الشكر لا تكفي لتعبر عن مدى امتناننا لكِ.  
+                 أنتِ رمز العطاء، ومثال الحب والإلهام.  
+                 نتمنى أن يكون هذا الموقع لوحة فنية تليق بقلبكِ الجميل.  
+                 شكرًا من الأعماق، أمي الثانية.
+             </p>
+             <div class="mt-6 text-6xl animate-bounce">💖</div>
+         </div>
+     </section>
+ 
+     <!-- JavaScript for Interactivity and Animations -->
+     <script>
+         // Scroll to section
+         function scrollToSection(sectionId) {
+             document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+         }
+ 
+         // Add message to the list
+         function addMessage() {
+             const input = document.getElementById('messageInput');
+             const message = input.value.trim();
+             if (message) {
+                 const messageDiv = document.createElement('div');
+                 messageDiv.className = 'bg-pink-50 p-4 rounded-lg shadow-lg text-gray-600';
+                 messageDiv.textContent = message;
+                 document.getElementById('messagesList').prepend(messageDiv);
+                 input.value = '';
+                 gsap.from(messageDiv, { opacity: 0, y: 20, duration: 1 });
+             }
+         }
+ 
+         // GSAP Animations
+         gsap.from('#welcome', { opacity: 0, y: 50, duration: 1, delay: 0.5 });
+         gsap.from('#story', { opacity: 0, y: 50, duration: 1, scrollTrigger: { trigger: '#story', start: 'top 80%' } });
+         gsap.from('#memories .gallery-item', { opacity: 0, y: 50, stagger: 0.2, duration: 1, scrollTrigger: { trigger: '#memories', start: 'top 80%' } });
+         gsap.from('#messages', { opacity: 0, y: 50, duration: 1, scrollTrigger: { trigger: '#messages', start: 'top 80%' } });
+         gsap.from('#closing', { opacity: 0, y: 50, duration: 1, scrollTrigger: { trigger: '#closing', start: 'top 80%' } });
+ 
+         // Particles Background
+         const canvas = document.getElementById('particles');
+         const ctx = canvas.getContext('2d');
+         canvas.width = window.innerWidth;
+         canvas.height = window.innerHeight;
+ 
+         const particles = [];
+         for (let i = 0; i < 100; i++) {
+             particles.push({
+                 x: Math.random() * canvas.width,
+                 y: Math.random() * canvas.height,
+                 radius: Math.random() * 2 + 1,
+                 vx: Math.random() * 2 - 1,
+                 vy: Math.random() * 2 - 1
+             });
+         }
+ 
+         function animateParticles() {
+             ctx.clearRect(0, 0, canvas.width, canvas.height);
+             particles.forEach(p => {
+                 p.x += p.vx;
+                 p.y += p.vy;
+                 if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                 if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                 ctx.beginPath();
+                 ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                 ctx.fillStyle = 'rgba(255, 107, 107, 0.5)';
+                 ctx.fill();
+             });
+             requestAnimationFrame(animateParticles);
+         }
+         animateParticles();
+ 
+         // Floating Hearts
+         function createHeart() {
+             const heart = document.createElement('div');
+             heart.classList.add('heart');
+             heart.style.left = Math.random() * 80 + 10 + '%';
+             heart.style.top = Math.random() * 80 + 10 + '%';
+             heart.style.animationDelay = Math.random() * 3 + 's';
+             document.body.appendChild(heart);
+             setTimeout(() => heart.remove(), 6000);
+         }
+         setInterval(createHeart, 1500);
+ 
+         // Resize canvas on window resize
+         window.addEventListener('resize', () => {
+             canvas.width = window.innerWidth;
+             canvas.height = window.innerHeight;
+         });
+     </script>
+  </main>
+
+<!-- Footer -->
+<footer class="bg-gradient-to-r from-[#1d2d66] to-[#4c6bb5] py-16 text-center relative z-10 backdrop-blur-sm">
+    <p class="text-3xl font-bold text-white">بكل الحب والامتنان ♥</p>
+  </footer>
+
+  <script>
+    // Cursor glow follow
+    document.addEventListener("mousemove", (e) => {
+      const cursor = document.getElementById("cursor");
+      cursor.style.left = e.clientX - 30 + "px";
+      cursor.style.top = e.clientY - 30 + "px";
+    });
+
+    // Animate text
+    gsap.to(".thank-you-text span", {
+      opacity: 1,
+      y: 0,
+      stagger: 0.1,
+      duration: 1.2,
+      ease: "back.out(1.7)"
+    });
+
+    // 3D background stars
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("bg-canvas"), alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const starsGeometry = new THREE.BufferGeometry();
+    const starVertices = [];
+    for (let i = 0; i < 10000; i++) {
+      const x = THREE.MathUtils.randFloatSpread(2000);
+      const y = THREE.MathUtils.randFloatSpread(2000);
+      const z = THREE.MathUtils.randFloatSpread(2000);
+      starVertices.push(x, y, z);
+    }
+    starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+    const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff });
+    const starField = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(starField);
+    camera.position.z = 1;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      starField.rotation.x += 0.0003;
+      starField.rotation.y += 0.0005;
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>
